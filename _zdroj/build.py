@@ -102,7 +102,9 @@ HLAVICKA = ('<!DOCTYPE html><html lang="cs"><head><meta charset="utf-8">'
             '<title>Podpis OFTALMED</title></head>'
             '<body style="margin:0;padding:24px;background:#ffffff;">')
 
-for jmeno, base in (('podpis.html', WEB), ('podpis-nahled.html', 'assets/')):
+# index.html = totéž co podpis.html; díky němu jde podpis zkopírovat rovnou
+# z https://oftalmed.github.io/podpis/ bez otevírání lokálního souboru
+for jmeno, base in (('podpis.html', WEB), ('index.html', WEB), ('podpis-nahled.html', 'assets/')):
     with io.open(jmeno, 'w', encoding='utf-8') as f:
         f.write(HLAVICKA + sestav(base) + '</body></html>')
     print('zapsano:', jmeno)
