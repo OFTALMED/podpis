@@ -36,9 +36,9 @@ def zaoblit(img, r, pozadi):
     out.paste(img, (0, 0), maska)
     return out
 
-gradient(LINKA, 836, 8).save('assets/podpis-linka-h.png', optimize=True)
-gradient(LINKA, 8, 352, svisly=True).save('assets/podpis-linka-v.png', optimize=True)
-zaoblit(gradient(PRUH, 1172, 36), 12, PODKLAD).save('assets/podpis-pruh.png', optimize=True)
+gradient(LINKA, 836, 8).save('obrazky/podpis-linka-h.png', optimize=True)
+gradient(LINKA, 8, 352, svisly=True).save('obrazky/podpis-linka-v.png', optimize=True)
+zaoblit(gradient(PRUH, 1172, 36), 12, PODKLAD).save('obrazky/podpis-pruh.png', optimize=True)
 print('linka-h  418x4   (soubor 836x8)')
 print('linka-v  4x176   (soubor 8x352)')
 print('pruh     586x18  (soubor 1172x36, rohy zaobleny r=6)')

@@ -1,9 +1,21 @@
-# Podpis OFTALMED
+# Podpisy OFTALMED
 
-E-mailový podpis MUDr. Tomáše Mňuka (OFTALMED s.r.o. & OFTALMED OPTIKA s.r.o.)
-a obrázky, ze kterých se skládá. Repozitář zároveň slouží jako **hosting těch obrázků**
-přes GitHub Pages — podpis se na ně odkazuje přes `https://`, takže přežije i odpověď
-z Outlooku.
+E-mailové podpisy pro tým OFTALMED s.r.o. & OFTALMED OPTIKA s.r.o. a obrázky, ze kterých
+se skládají. Repozitář zároveň slouží jako **hosting těch obrázků** přes GitHub Pages —
+podpisy se na ně odkazují přes `https://`, takže přežijí i odpověď z Outlooku.
+
+## Podpisy
+
+Otevřít, `Ctrl+A`, `Ctrl+C` a vložit v Gmailu do *Nastavení → Obecné → Podpis*.
+
+| Kdo | Adresa |
+|---|---|
+| Rozcestník | https://oftalmed.github.io/podpis/ |
+| MUDr. Tomáš Mňuk | https://oftalmed.github.io/podpis/mnuk/ |
+| Bc. Nina Šutáková | https://oftalmed.github.io/podpis/sutakova/ |
+| Viktor Wildner, DiS. | https://oftalmed.github.io/podpis/wildner/ |
+| Viktor Wildner, DiS. (druhé číslo) | https://oftalmed.github.io/podpis/wildner-2/ |
+| Virtuální asistent | https://oftalmed.github.io/podpis/asistent/ |
 
 ## Proč to takhle je
 
@@ -17,33 +29,45 @@ znovu, kolikrát se na e-mail odpoví.
 
 | Cesta | Co to je |
 |---|---|
-| `podpis.html` | hotový podpis k vložení do Gmailu |
-| `nahled.png` | jak má výsledek vypadat |
-| `obrazky/` | 8 obrázků podpisu, publikovaných přes GitHub Pages |
-| `_zdroj/build.py` | generátor `podpis.html` — **zdroj pravdy, edituje se tohle** |
+| `<slug>/index.html` | jeden hotový podpis (generovaný) |
+| `index.html` | rozcestník se všemi podpisy (generovaný) |
+| `nahled.png` | jak mají všechny vypadat |
+| `obrazky/` | obrázky podpisů, publikované přes GitHub Pages |
+| `_zdroj/build.py` | generátor podpisů — **zdroj pravdy, edituje se tohle** |
 | `_zdroj/gradienty.py` | generátor linek a spodního pruhu |
-| `_zdroj/navrh-canva-6x.png` | výchozí grafický návrh (Canva `DAHUKO-ess4`) |
+| `_zdroj/navrh-canva-6x.png` | výchozí grafický návrh (Canva `DAF3o89v8Jo`) |
 
-Obrázky jsou uložené ve dvojnásobném rozlišení kvůli retina displejům; podpis je
-zmenšuje atributy `width`/`height`.
+Obrázky jsou uložené ve dvojnásobném rozlišení kvůli retina displejům; podpisy je
+zmenšují atributy `width`/`height`.
 
-## Úprava podpisu
+## QR kódy
+
+Každý podpis má **vlastní soubor** `obrazky/podpis-qr-<slug>.png`, i když je obrázek
+zatím shodný s jiným. Výměna QR proto znamená přepsat jeden obrázek — HTML se nemění
+a nikdo nemusí podpis znovu vkládat do Gmailu.
+
+> **Nedodělek:** `podpis-qr-wildner-2.png` a `podpis-qr-asistent.png` nesou zatím
+> **převzatý QR z návrhu** (Wildnerův, resp. Mňukův). Tomáš je opravuje v Canvě.
+> Až budou hotové, stačí přepsat ty dva soubory.
+
+`obrazky/podpis-qr.png` je starý název Mňukova QR. Zůstává jen kvůli podpisu, který
+mohl být vložený do Gmailu dřív, než vznikly per-osobní názvy. Až budou všechny podpisy
+nasazené z aktuálních adres, může se smazat.
+
+## Úprava podpisů
 
 ```bash
-python _zdroj/build.py     # přepíše podpis.html i podpis-nahled.html
+python _zdroj/build.py     # přepíše všechny podpisy i rozcestník
 python _zdroj/gradienty.py # jen když se mění barvy linek nebo pruhu
 ```
 
-Adresa úložiště obrázků je konstanta `WEB` na začátku `build.py`.
+Lidé, čísla a role jsou v seznamu `LIDE` na začátku `build.py`; adresa úložiště obrázků
+v konstantě `WEB`. Skripty se spouštějí z kořene repozitáře.
 
-## Vložení do Gmailu
+## Kontrola po nasazení
 
-Gmail neumí vložit HTML kód přímo. `podpis.html` otevřít v Chrome → `Ctrl+A`, `Ctrl+C`
-→ Gmail *Nastavení → Obecné → Podpis* → `Ctrl+V` → *Uložit změny*.
-Nastavuje se ke každé odesílací adrese zvlášť.
-
-**Po nasazení ověřit:** v odeslané zprávě nesmí být ikona sponky (sponka = obrázky se
-zase posílají jako přílohy) a po odpovědi z Outlooku musí obrázky pořád držet.
+V odeslané zprávě **nesmí být ikona sponky** (sponka = obrázky se zase posílají jako
+přílohy) a po odpovědi z Outlooku musí obrázky pořád držet.
 
 ## Pravidla, která se tu nesmí porušit
 

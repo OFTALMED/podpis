@@ -1,20 +1,23 @@
 # -*- coding: utf-8 -*-
-"""Sestaví HTML e-mailový podpis OFTALMED. Zdroj designu: Canva DAHUKO-ess4.
-Po úpravě spustit `python build.py` — přepíše podpis.html i podpis-nahled.html."""
-import io
+"""Generátor e-mailových podpisů OFTALMED.
 
-WEB = "https://oftalmed.github.io/podpis/obrazky/"   # úložiště obrázků podpisu (GitHub Pages)
+Zdroj designu: Canva `DAF3o89v8Jo` (5 stran = 5 lidí), odkazy z novější kopie `DAHUKO-ess4`.
+Spuštění `python build.py` přepíše všechny podpisy, náhledy i rozcestník.
+"""
+import io, os
+
+WEB = "https://oftalmed.github.io/podpis/obrazky/"   # úložiště obrázků podpisů
 
 FONT = "Roboto,'Helvetica Neue',Arial,Helvetica,sans-serif"
 MODRA, CERVENA, TEXT, PODKLAD = "#020873", "#880913", "#070808", "#fefefe"
-RADIUS = 6          # zaoblení tlačítek a spodního pruhu (px)
+RADIUS = 6                 # zaoblení tlačítek a spodního pruhu (px)
 PRUH_NAHRADA = "#450843"   # plná barva pod gradientem pruhu
 
-URL_ORDINACE    = "https://my.medevio.cz/oftalmed"
-URL_OPTIKY      = "https://my.medevio.cz/oftalmed-optika"
-URL_WEB         = "https://oftalmed.cz"
-URL_WEB_OPTIKA  = "https://oftalmed-optika.cz"
-URL_CHATBOT     = "https://oftalmed-optika.cz/chatbot/"
+URL_ORDINACE   = "https://my.medevio.cz/oftalmed"
+URL_OPTIKY     = "https://my.medevio.cz/oftalmed-optika"
+URL_WEB        = "https://oftalmed.cz"
+URL_WEB_OPTIKA = "https://oftalmed-optika.cz"
+URL_CHATBOT    = "https://oftalmed-optika.cz/chatbot/"
 URL_MAPA = ("https://www.google.com/maps/place/OFTALMED+OPTIKA+s.r.o./@49.2110276,16.6304261,17z/"
             "data=!3m1!4b1!4m6!3m5!1s0x471295dd34cd7b53:0xc57afb6776774aa5!8m2!3d49.2110276"
             "!4d16.633001!16s%2Fg%2F11n2v0hw4p?authuser=0&amp;entry=ttu")
@@ -22,89 +25,179 @@ URL_MAPA = ("https://www.google.com/maps/place/OFTALMED+OPTIKA+s.r.o./@49.211027
 TEXT_PRUH = ("Máte nějaké otázky? Zeptejte se nejdříve našeho virtuální AI asistenta, "
              "ví toho docela hodně a učí se...")
 
-def img(base, soubor, w, h, alt, style=""):
-    return (f'<img src="{base}{soubor}" width="{w}" height="{h}" alt="{alt}" '
-            f'border="0" style="display:block;border:0;outline:none;text-decoration:none;'
-            f'width:{w}px;height:{h}px;{style}">')
+# slug, jméno, (popisek osobního čísla, číslo, poznámka v závorce) nebo None
+#
+# QR kód se odvozuje ze slugu: obrazky/podpis-qr-<slug>.png. Každý podpis má vlastní
+# soubor i tam, kde je obrázek zatím shodný s jiným — výměna QR pak znamená přepsat
+# jeden obrázek, HTML se nemění a podpis se nemusí znovu vkládat do Gmailu.
+#
+# POZOR: `wildner-2` a `asistent` nesou zatím PŘEVZATÝ QR z návrhu (Wildnerův, resp.
+# Mňukův). Tomáš je opravuje v Canvě — až budou, stačí přepsat ty dva soubory.
+LIDE = [
+    ("mnuk",      "MUDr. Tomáš Mňuk",     ("lékař",        "+420 736 220 797", "(konzultace akutních potíží)")),
+    ("sutakova",  "Bc. Nina Šutáková",    ("optometrista", "+420 731 875 187", "(konzultace, objednávání)")),
+    ("wildner",   "Viktor Wildner, DiS.", ("optik",        "+420 734 608 608", "(vyřizování zakázek, objednávání)")),
+    ("wildner-2", "Viktor Wildner, DiS.", ("optik",        "+420 737 916 707", "")),
+    ("asistent",  "Virtuální asistent",   None),
+]
+
+ODKAZ_V_TEXTU = "color:" + TEXT + ";text-decoration:none;"
+
+
+def img(base, soubor, w, h, alt):
+    return ('<img src="' + base + soubor + '" width="' + str(w) + '" height="' + str(h) +
+            '" alt="' + alt + '" border="0" style="display:block;border:0;outline:none;'
+            'text-decoration:none;width:' + str(w) + 'px;height:' + str(h) + 'px;">')
+
 
 def radek(base, ikona, alt, obsah):
-    """Jeden kontaktní řádek: ikonka + text."""
-    return f'''
-          <tr>
-            <td width="18" valign="middle" style="width:18px;padding:0 8px 5px 0;">{img(base, ikona, 18, 18, alt)}</td>
-            <td valign="middle" style="padding:0 0 5px 0;font-family:{FONT};font-size:11px;line-height:18px;color:{TEXT};">{obsah}</td>
-          </tr>'''
+    return ('\n          <tr>'
+            '\n            <td width="18" valign="middle" style="width:18px;padding:0 8px 5px 0;">'
+            + img(base, ikona, 18, 18, alt) + '</td>'
+            '\n            <td valign="middle" style="padding:0 0 5px 0;font-family:' + FONT +
+            ';font-size:11px;line-height:18px;color:' + TEXT + ';">' + obsah + '</td>'
+            '\n          </tr>')
+
+
+def prazdny_radek():
+    """Virtuální asistent nemá osobní číslo. Slot zůstává prázdný, aby zbylé řádky
+    i dělicí linky seděly na stejných místech jako u ostatních podpisů."""
+    return ('\n          <tr><td colspan="2" height="23" '
+            'style="height:23px;font-size:0;line-height:0;">&nbsp;</td></tr>')
+
 
 def tlacitko(barva, popisek, url):
-    return (f'<table role="presentation" width="64" cellpadding="0" cellspacing="0" border="0" '
-            f'style="width:64px;border-collapse:separate;border-radius:{RADIUS}px;background-color:{barva};">'
-            f'<tr><td align="center" bgcolor="{barva}" '
-            f'style="border-radius:{RADIUS}px;padding:3px 2px;font-family:{FONT};font-size:11px;'
-            f'font-weight:bold;line-height:12px;white-space:nowrap;">'
-            f'<a href="{url}" style="color:#fefefe;text-decoration:none;display:block;">{popisek}</a>'
-            f'</td></tr></table>')
+    return ('<table role="presentation" width="64" cellpadding="0" cellspacing="0" border="0" '
+            'style="width:64px;border-collapse:separate;border-radius:' + str(RADIUS) +
+            'px;background-color:' + barva + ';">'
+            '<tr><td align="center" bgcolor="' + barva + '" style="border-radius:' + str(RADIUS) +
+            'px;padding:3px 2px;font-family:' + FONT + ';font-size:11px;font-weight:bold;'
+            'line-height:12px;white-space:nowrap;">'
+            '<a href="' + url + '" style="color:#fefefe;text-decoration:none;display:block;">'
+            + popisek + '</a></td></tr></table>')
 
-def sestav(base):
-    A = f'color:{TEXT};text-decoration:none;'          # odkaz splývající s textem
-    return f'''<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;border-collapse:collapse;background-color:{PODKLAD};font-family:{FONT};color:{TEXT};">
+
+SABLONA = """<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;border-collapse:collapse;background-color:{PODKLAD};font-family:{FONT};color:{TEXT};">
   <tr>
-    <!-- LEVÝ SLOUPEC: logo + QR -->
+    <!-- LEVY SLOUPEC: logo + QR -->
     <td width="168" valign="top" style="width:168px;padding:28px 12px 0 12px;">
-      {img(base, 'podpis-logo.png', 144, 81, 'OFTALMED')}
+      {LOGO}
       <div style="height:9px;line-height:9px;font-size:0;">&nbsp;</div>
-      {img(base, 'podpis-qr.png', 144, 144, 'QR kontakt MUDr. Tomas Mnuk')}
+      {QR}
     </td>
-    <!-- SVISLÁ DĚLICÍ LINKA -->
-    <td width="4" valign="top" style="width:4px;padding:84px 0 0 0;">{img(base, 'podpis-linka-v.png', 4, 176, '')}</td>
-    <!-- PRAVÝ SLOUPEC -->
+    <!-- SVISLA DELICI LINKA -->
+    <td width="4" valign="top" style="width:4px;padding:84px 0 0 0;">{LINKA_V}</td>
+    <!-- PRAVY SLOUPEC -->
     <td valign="top" style="padding:84px 2px 0 8px;">
       <table role="presentation" width="418" cellpadding="0" cellspacing="0" border="0" style="width:418px;border-collapse:collapse;">
-        <tr><td style="font-family:{FONT};font-size:21px;font-weight:bold;line-height:29px;color:{MODRA};">MUDr.&nbsp;Tomáš&nbsp;Mňuk</td></tr>
+        <tr><td style="font-family:{FONT};font-size:21px;font-weight:bold;line-height:29px;color:{MODRA};white-space:nowrap;">{JMENO}</td></tr>
         <tr><td style="font-family:{FONT};font-size:17px;font-weight:bold;line-height:24px;color:{MODRA};padding-bottom:5px;">OFTALMED OPTIKA s.r.o. &amp; OFTALMED s.r.o.</td></tr>
-        <tr><td style="font-size:0;line-height:0;padding-bottom:5px;">{img(base, 'podpis-linka-h.png', 418, 4, '')}</td></tr>
+        <tr><td style="font-size:0;line-height:0;padding-bottom:5px;">{LINKA_H}</td></tr>
         <tr><td>
-          <table role="presentation" width="418" cellpadding="0" cellspacing="0" border="0" style="width:418px;border-collapse:collapse;">{radek(base, 'podpis-ikona-telefon.png', 'Telefon',
-              f'<a href="tel:+420736220797" style="{A}"><strong>lékař: +420 736 220 797</strong></a> (konzultace akutních potíží)')}{radek(base, 'podpis-ikona-telefon.png', 'Telefon',
-              f'<a href="tel:+420530000195" style="{A}"><strong>ústředna: +420 530 000 195</strong></a> (poskytování informací, objednání do optiky)')}{radek(base, 'podpis-ikona-web.png', 'Web',
-              f'<a href="{URL_WEB_OPTIKA}" style="{A}"><strong>www.OFTALMED-OPTIKA.cz</strong></a> &nbsp; &amp; &nbsp; <a href="{URL_WEB}" style="{A}"><strong>www.OFTALMED.cz</strong></a>')}{radek(base, 'podpis-ikona-adresa.png', 'Adresa',
-              f'<a href="{URL_MAPA}" style="{A}"><strong>nám. Republiky 744/5, 614 00 Brno</strong></a>')}
+          <table role="presentation" width="418" cellpadding="0" cellspacing="0" border="0" style="width:418px;border-collapse:collapse;">{RADKY}
           </table>
         </td></tr>
-        <tr><td style="font-size:0;line-height:0;padding:0 0 5px 0;">{img(base, 'podpis-linka-h.png', 418, 4, '')}</td></tr>
+        <tr><td style="font-size:0;line-height:0;padding:0 0 5px 0;">{LINKA_H}</td></tr>
         <tr><td>
           <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
             <tr>
               <td valign="middle" style="font-family:{FONT};font-size:11px;font-weight:bold;line-height:18px;color:{TEXT};padding-right:6px;white-space:nowrap;">Skrze systém MEDEVIO se můžete objednat do</td>
-              <td valign="middle">{tlacitko(MODRA, 'ORDINACE', URL_ORDINACE)}</td>
+              <td valign="middle">{BTN_ORD}</td>
               <td valign="middle" style="font-family:{FONT};font-size:11px;font-weight:bold;line-height:18px;color:{TEXT};padding:0 3px;white-space:nowrap;">nebo do</td>
-              <td valign="middle">{tlacitko(CERVENA, 'OPTIKY', URL_OPTIKY)}</td>
+              <td valign="middle">{BTN_OPT}</td>
             </tr>
           </table>
         </td></tr>
       </table>
     </td>
   </tr>
-  <!-- SPODNÍ PRUH -->
+  <!-- SPODNI PRUH -->
   <tr>
     <td colspan="3" style="padding:4px 0 0 12px;">
       <table role="presentation" width="586" cellpadding="0" cellspacing="0" border="0" style="width:586px;border-collapse:collapse;">
         <tr>
-          <td height="18" align="center" background="{base}podpis-pruh.png" bgcolor="{PRUH_NAHRADA}" style="height:18px;border-radius:{RADIUS}px;background-color:{PRUH_NAHRADA};background-image:url('{base}podpis-pruh.png');background-repeat:no-repeat;background-size:586px 18px;padding:0 8px;font-family:{FONT};font-size:10px;font-weight:bold;line-height:18px;color:#ffffff;white-space:nowrap;">
+          <td height="18" align="center" background="{PRUH_URL}" bgcolor="{PRUH_NAHRADA}" style="height:18px;border-radius:{RADIUS}px;background-color:{PRUH_NAHRADA};background-image:url({PRUH_CSS});background-repeat:no-repeat;background-size:586px 18px;padding:0 8px;font-family:{FONT};font-size:10px;font-weight:bold;line-height:18px;color:#ffffff;white-space:nowrap;">
             <a href="{URL_CHATBOT}" style="color:#ffffff;text-decoration:none;">{TEXT_PRUH}</a>
           </td>
         </tr>
       </table>
     </td>
   </tr>
-</table>'''
+</table>"""
 
-HLAVICKA = ('<!DOCTYPE html><html lang="cs"><head><meta charset="utf-8">'
-            '<title>Podpis OFTALMED</title></head>'
-            '<body style="margin:0;padding:24px;background:#ffffff;">')
 
-# index.html = totéž co podpis.html; díky němu jde podpis zkopírovat rovnou
-# z https://oftalmed.github.io/podpis/ bez otevírání lokálního souboru
-for jmeno, base in (('podpis.html', WEB), ('index.html', WEB), ('podpis-nahled.html', 'assets/')):
-    with io.open(jmeno, 'w', encoding='utf-8') as f:
-        f.write(HLAVICKA + sestav(base) + '</body></html>')
-    print('zapsano:', jmeno)
+def sestav(base, jmeno, osobni, qr):
+    A = ODKAZ_V_TEXTU
+    if osobni:
+        popis, cislo, pozn = osobni
+        obsah = ('<a href="tel:' + cislo.replace(' ', '') + '" style="' + A + '">'
+                 '<strong>' + popis + ': ' + cislo + '</strong></a>')
+        if pozn:
+            obsah += ' ' + pozn
+        prvni = radek(base, 'podpis-ikona-telefon.png', 'Telefon', obsah)
+    else:
+        prvni = prazdny_radek()
+
+    radky = (prvni
+        + radek(base, 'podpis-ikona-telefon.png', 'Telefon',
+                '<a href="tel:+420530000195" style="' + A + '"><strong>ústředna: +420 530 000 195'
+                '</strong></a> (poskytování informací, objednání do optiky)')
+        + radek(base, 'podpis-ikona-web.png', 'Web',
+                '<a href="' + URL_WEB_OPTIKA + '" style="' + A + '"><strong>www.OFTALMED-OPTIKA.cz'
+                '</strong></a> &nbsp; &amp; &nbsp; <a href="' + URL_WEB + '" style="' + A + '">'
+                '<strong>www.OFTALMED.cz</strong></a>')
+        + radek(base, 'podpis-ikona-adresa.png', 'Adresa',
+                '<a href="' + URL_MAPA + '" style="' + A + '">'
+                '<strong>nám. Republiky 744/5, 614 00 Brno</strong></a>'))
+
+    return SABLONA.format(
+        PODKLAD=PODKLAD, FONT=FONT, TEXT=TEXT, MODRA=MODRA, RADIUS=RADIUS,
+        PRUH_NAHRADA=PRUH_NAHRADA, URL_CHATBOT=URL_CHATBOT, TEXT_PRUH=TEXT_PRUH,
+        JMENO=jmeno, RADKY=radky,
+        LOGO=img(base, 'podpis-logo.png', 144, 81, 'OFTALMED'),
+        QR=img(base, qr, 144, 144, 'QR kontakt ' + jmeno),
+        LINKA_V=img(base, 'podpis-linka-v.png', 4, 176, ''),
+        LINKA_H=img(base, 'podpis-linka-h.png', 418, 4, ''),
+        BTN_ORD=tlacitko(MODRA, 'ORDINACE', URL_ORDINACE),
+        BTN_OPT=tlacitko(CERVENA, 'OPTIKY', URL_OPTIKY),
+        PRUH_URL=base + 'podpis-pruh.png',
+        PRUH_CSS="'" + base + "podpis-pruh.png'")
+
+
+def stranka(telo, titulek):
+    return ('<!DOCTYPE html><html lang="cs"><head><meta charset="utf-8">'
+            '<title>' + titulek + '</title></head>'
+            '<body style="margin:0;padding:24px;background:#ffffff;">' + telo + '</body></html>')
+
+
+def zapis(cesta, obsah):
+    adresar = os.path.dirname(cesta)
+    if adresar:
+        os.makedirs(adresar, exist_ok=True)
+    with io.open(cesta, 'w', encoding='utf-8') as f:
+        f.write(obsah)
+
+
+for slug, jmeno, osobni in LIDE:
+    # každý podpis má vlastní adresu https://oftalmed.github.io/podpis/<slug>/
+    # Obrázky se tahají z WEB, takže soubor vypadá stejně otevřený lokálně i z Pages —
+    # samostatná náhledová verze s relativními cestami už neexistuje, jen mátla.
+    qr = 'podpis-qr-' + slug + '.png'
+    zapis(slug + '/index.html', stranka(sestav(WEB, jmeno, osobni, qr), 'Podpis - ' + jmeno))
+    print('{:11s} {}'.format(slug, jmeno))
+
+polozky = '\n'.join(
+    '        <li style="margin:0 0 10px 0;"><a href="' + slug + '/" '
+    'style="color:' + MODRA + ';font-weight:bold;text-decoration:none;">' + jmeno + '</a></li>'
+    for slug, jmeno, _ in LIDE)
+
+zapis('index.html', stranka(
+    '<div style="font-family:' + FONT + ';max-width:600px;color:' + TEXT + ';">'
+    '<h1 style="font-size:21px;color:' + MODRA + ';margin:0 0 4px 0;">E-mailové podpisy OFTALMED</h1>'
+    '<p style="font-size:13px;line-height:20px;margin:0 0 16px 0;">Otevři svůj podpis, '
+    '<strong>Ctrl+A</strong>, <strong>Ctrl+C</strong> a vlož ho v Gmailu do '
+    '<em>Nastavení &rarr; Obecné &rarr; Podpis</em>.</p>'
+    '<ul style="font-size:15px;line-height:22px;padding-left:20px;margin:0;">\n'
+    + polozky +
+    '\n      </ul></div>', 'E-mailové podpisy OFTALMED'))
+print('\nindex.html (rozcestnik) hotov')
