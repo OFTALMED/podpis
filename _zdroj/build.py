@@ -6,11 +6,13 @@ Spuštění `python build.py` přepíše všechny podpisy, náhledy i rozcestní
 """
 import io, os
 
-WEB = "https://oftalmed.github.io/podpis/obrazky/"   # úložiště obrázků podpisů
+WEB = os.environ.get('WEB', "https://oftalmed.github.io/podpis/obrazky/")  # úložiště obrázků
+
+from rozmery import *   # MERITKO a všechny odvozené rozměry
+
 
 FONT = "Roboto,'Helvetica Neue',Arial,Helvetica,sans-serif"
 MODRA, CERVENA, TEXT, PODKLAD = "#020873", "#880913", "#070808", "#fefefe"
-RADIUS = 6                 # zaoblení tlačítek a spodního pruhu (px)
 PRUH_NAHRADA = "#450843"   # plná barva pod gradientem pruhu
 
 URL_ORDINACE   = "https://my.medevio.cz/oftalmed"
@@ -72,43 +74,44 @@ def prazdny_radek():
 
 
 def tlacitko(barva, popisek, url):
-    return ('<table role="presentation" width="64" cellpadding="0" cellspacing="0" border="0" '
-            'style="width:64px;border-collapse:separate;border-radius:' + str(RADIUS) +
-            'px;background-color:' + barva + ';">'
+    return ('<table role="presentation" width="' + str(BTN_W) + '" cellpadding="0" cellspacing="0" '
+            'border="0" style="width:' + str(BTN_W) + 'px;border-collapse:separate;border-radius:'
+            + str(RADIUS) + 'px;background-color:' + barva + ';">'
             '<tr><td align="center" bgcolor="' + barva + '" style="border-radius:' + str(RADIUS) +
-            'px;padding:3px 2px;font-family:' + FONT + ';font-size:11px;font-weight:bold;'
-            'line-height:12px;white-space:nowrap;">'
+            'px;padding:' + str(BTN_PAD_V) + 'px ' + str(BTN_PAD_H) + 'px;font-family:' + FONT +
+            ';font-size:' + str(BTN_F) + 'px;font-weight:bold;'
+            'line-height:' + str(BTN_LH) + 'px;white-space:nowrap;">'
             '<a href="' + url + '" style="color:#fefefe;text-decoration:none;display:block;">'
             + popisek + '</a></td></tr></table>')
 
 
-SABLONA = """<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;border-collapse:collapse;background-color:{PODKLAD};font-family:{FONT};color:{TEXT};">
+SABLONA = """<table role="presentation" width="{CELKEM}" cellpadding="0" cellspacing="0" border="0" style="width:{CELKEM}px;max-width:{CELKEM}px;border-collapse:collapse;background-color:{PODKLAD};font-family:{FONT};color:{TEXT};">
   <tr>
     <!-- LEVY SLOUPEC: logo + QR -->
-    <td width="168" valign="top" style="width:168px;padding:28px 12px 0 12px;">
+    <td width="{LEVY}" valign="top" style="width:{LEVY}px;padding:{LEVY_TOP}px {PAD_L}px 0 {PAD_L}px;">
       {LOGO}
-      <div style="height:9px;line-height:9px;font-size:0;">&nbsp;</div>
+      <div style="height:{MEZERA}px;line-height:{MEZERA}px;font-size:0;">&nbsp;</div>
       {QR}
     </td>
     <!-- SVISLA DELICI LINKA -->
-    <td width="4" valign="top" style="width:4px;padding:84px 0 0 0;">{LINKA_V}</td>
+    <td width="{DIV}" valign="top" style="width:{DIV}px;padding:{DIV_TOP}px 0 0 0;">{LINKA_V}</td>
     <!-- PRAVY SLOUPEC -->
-    <td valign="top" style="padding:84px 2px 0 8px;">
-      <table role="presentation" width="418" cellpadding="0" cellspacing="0" border="0" style="width:418px;border-collapse:collapse;">
-        <tr><td style="font-family:{FONT};font-size:21px;font-weight:bold;line-height:29px;color:{MODRA};white-space:nowrap;">{JMENO}</td></tr>
-        <tr><td style="font-family:{FONT};font-size:17px;font-weight:bold;line-height:24px;color:{MODRA};padding-bottom:5px;">OFTALMED OPTIKA s.r.o. &amp; OFTALMED s.r.o.</td></tr>
-        <tr><td style="font-size:0;line-height:0;padding-bottom:5px;">{LINKA_H}</td></tr>
+    <td valign="top" style="padding:{DIV_TOP}px {PRAVY_PAD_R}px 0 {PRAVY_PAD_L}px;">
+      <table role="presentation" width="{PRAVY}" cellpadding="0" cellspacing="0" border="0" style="width:{PRAVY}px;border-collapse:collapse;">
+        <tr><td style="font-family:{FONT};font-size:{JMENO_F}px;font-weight:bold;line-height:{JMENO_LH}px;color:{MODRA};white-space:nowrap;">{JMENO}</td></tr>
+        <tr><td style="font-family:{FONT};font-size:{FIRMA_F}px;font-weight:bold;line-height:{FIRMA_LH}px;color:{MODRA};padding-bottom:{RADEK_PAD}px;">OFTALMED OPTIKA s.r.o. &amp; OFTALMED s.r.o.</td></tr>
+        <tr><td style="font-size:0;line-height:0;padding-bottom:{RADEK_PAD}px;">{LINKA_H}</td></tr>
         <tr><td>
-          <table role="presentation" width="418" cellpadding="0" cellspacing="0" border="0" style="width:418px;border-collapse:collapse;">{RADKY}
+          <table role="presentation" width="{PRAVY}" cellpadding="0" cellspacing="0" border="0" style="width:{PRAVY}px;border-collapse:collapse;">{RADKY}
           </table>
         </td></tr>
-        <tr><td style="font-size:0;line-height:0;padding:0 0 5px 0;">{LINKA_H}</td></tr>
+        <tr><td style="font-size:0;line-height:0;padding:0 0 {RADEK_PAD}px 0;">{LINKA_H}</td></tr>
         <tr><td>
           <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
             <tr>
-              <td valign="middle" style="font-family:{FONT};font-size:11px;font-weight:bold;line-height:18px;color:{TEXT};padding-right:6px;white-space:nowrap;">Skrze systém MEDEVIO se můžete objednat do</td>
+              <td valign="middle" style="font-family:{FONT};font-size:{TEXT_F}px;font-weight:bold;line-height:{TEXT_LH}px;color:{TEXT};padding-right:{MEZ_LABEL}px;white-space:nowrap;">Skrze systém MEDEVIO se můžete objednat do</td>
               <td valign="middle">{BTN_ORD}</td>
-              <td valign="middle" style="font-family:{FONT};font-size:11px;font-weight:bold;line-height:18px;color:{TEXT};padding:0 3px;white-space:nowrap;">nebo do</td>
+              <td valign="middle" style="font-family:{FONT};font-size:{TEXT_F}px;font-weight:bold;line-height:{TEXT_LH}px;color:{TEXT};padding:0 {MEZ_TL}px;white-space:nowrap;">nebo do</td>
               <td valign="middle">{BTN_OPT}</td>
             </tr>
           </table>
@@ -118,10 +121,10 @@ SABLONA = """<table role="presentation" width="600" cellpadding="0" cellspacing=
   </tr>
   <!-- SPODNI PRUH -->
   <tr>
-    <td colspan="3" style="padding:4px 0 0 12px;">
-      <table role="presentation" width="586" cellpadding="0" cellspacing="0" border="0" style="width:586px;border-collapse:collapse;">
+    <td colspan="3" style="padding:{PRUH_TOP}px 0 0 {PAD_L}px;">
+      <table role="presentation" width="{PRUH_W}" cellpadding="0" cellspacing="0" border="0" style="width:{PRUH_W}px;border-collapse:collapse;">
         <tr>
-          <td height="18" align="center" background="{PRUH_URL}" bgcolor="{PRUH_NAHRADA}" style="height:18px;border-radius:{RADIUS}px;background-color:{PRUH_NAHRADA};background-image:url({PRUH_CSS});background-repeat:no-repeat;background-size:586px 18px;padding:0 8px;font-family:{FONT};font-size:10px;font-weight:bold;line-height:18px;color:#ffffff;white-space:nowrap;">
+          <td height="{PRUH_H}" align="center" background="{PRUH_URL}" bgcolor="{PRUH_NAHRADA}" style="height:{PRUH_H}px;border-radius:{RADIUS}px;background-color:{PRUH_NAHRADA};background-image:url({PRUH_CSS});background-repeat:no-repeat;background-size:{PRUH_W}px {PRUH_H}px;padding:0 {PRUH_PAD}px;font-family:{FONT};font-size:{PRUH_F}px;font-weight:bold;line-height:{PRUH_H}px;color:#ffffff;white-space:nowrap;">
             <a href="{URL_CHATBOT}" style="color:#ffffff;text-decoration:none;">{TEXT_PRUH}</a>
           </td>
         </tr>
@@ -159,10 +162,16 @@ def sestav(base, jmeno, osobni, qr, pruh=TEXT_PRUH):
         PODKLAD=PODKLAD, FONT=FONT, TEXT=TEXT, MODRA=MODRA, RADIUS=RADIUS,
         PRUH_NAHRADA=PRUH_NAHRADA, URL_CHATBOT=URL_CHATBOT, TEXT_PRUH=pruh,
         JMENO=jmeno, RADKY=radky,
-        LOGO=img(base, 'podpis-logo.png', 144, 81, 'OFTALMED'),
-        QR=img(base, qr, 144, 144, 'QR kontakt ' + jmeno),
-        LINKA_V=img(base, 'podpis-linka-v.png', 4, 176, ''),
-        LINKA_H=img(base, 'podpis-linka-h.png', 418, 4, ''),
+        CELKEM=CELKEM, LEVY=LEVY, PAD_L=PAD_L, LEVY_TOP=LEVY_TOP, MEZERA=MEZERA,
+        DIV=DIV, DIV_TOP=DIV_TOP, PRAVY=PRAVY, PRAVY_PAD_L=PRAVY_PAD_L, PRAVY_PAD_R=PRAVY_PAD_R,
+        JMENO_F=JMENO_F, JMENO_LH=JMENO_LH, FIRMA_F=FIRMA_F, FIRMA_LH=FIRMA_LH,
+        TEXT_F=TEXT_F, TEXT_LH=TEXT_LH, RADEK_PAD=RADEK_PAD,
+        MEZ_TL=MEZ_TL, MEZ_LABEL=MEZ_LABEL,
+        PRUH_W=PRUH_W, PRUH_H=PRUH_H, PRUH_F=PRUH_F, PRUH_PAD=PRUH_PAD, PRUH_TOP=PRUH_TOP,
+        LOGO=img(base, 'podpis-logo.png', OBR, LOGO_H, 'OFTALMED'),
+        QR=img(base, qr, OBR, OBR, 'QR kontakt ' + jmeno),
+        LINKA_V=img(base, 'podpis-linka-v.png', DIV, LINKA_V_H, ''),
+        LINKA_H=img(base, 'podpis-linka-h.png', PRAVY, LINKA_H_V, ''),
         BTN_ORD=tlacitko(MODRA, 'ORDINACE', URL_ORDINACE),
         BTN_OPT=tlacitko(CERVENA, 'OPTIKY', URL_OPTIKY),
         PRUH_URL=base + 'podpis-pruh.png',
@@ -202,7 +211,7 @@ polozky = '\n'.join(
 # aby sly vyzkouset mobilem z monitoru na jeden zatah
 dlazdice = '\n'.join(
     '  <div style="display:inline-block;margin:0 18px 18px 0;text-align:center;vertical-align:top;">'
-    + img(WEB, 'podpis-qr-' + slug + '.png', 144, 144, 'QR ' + jmeno).replace('display:block', 'display:inline-block')
+    + img(WEB, 'podpis-qr-' + slug + '.png', OBR, OBR, 'QR ' + jmeno).replace('display:block', 'display:inline-block')
     + '<div style="font-family:' + FONT + ';font-size:12px;color:' + TEXT + ';margin-top:6px;">'
     + jmeno + '</div>'
     # cislo odlisi dva podpisy stejneho jmena
@@ -214,7 +223,7 @@ zapis('test/index.html', stranka(
     '<div style="font-family:' + FONT + ';color:' + TEXT + ';max-width:840px;">'
     '<h1 style="font-size:21px;color:' + MODRA + ';margin:0 0 4px 0;">Test QR kódů</h1>'
     '<p style="font-size:13px;line-height:20px;margin:0 0 6px 0;">Každý kód je tu <strong>přesně '
-    'tak velký jako v podpisu</strong> (144 px). Zkus je načíst mobilem z monitoru.</p>'
+    'tak velký jako v podpisu</strong> (' + str(OBR) + ' px). Zkus je načíst mobilem z monitoru.</p>'
     '<p style="font-size:13px;line-height:20px;margin:0 0 20px 0;color:#666;">Aby test platil, '
     'musí mít prohlížeč zoom na 100 % (<strong>Ctrl+0</strong>). Windows si navíc obraz zvětšuje '
     'vlastním škálováním displeje — na jiném monitoru vyjde kód fyzicky jinak velký.</p>'

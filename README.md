@@ -92,12 +92,33 @@ v přesné velikosti, jakou mají v podpisu.
 ## Úprava podpisů
 
 ```bash
-python _zdroj/build.py     # přepíše všechny podpisy i rozcestník
-python _zdroj/gradienty.py # jen když se mění barvy linek nebo pruhu
+python _zdroj/assety.py    # vyrenderuje obrázky v rozlišení podle měřítka
+python _zdroj/build.py     # přepíše všechny podpisy, rozcestník i testovací stránku
 ```
 
-Lidé, čísla a role jsou v seznamu `LIDE` na začátku `build.py`; adresa úložiště obrázků
-v konstantě `WEB`. Skripty se spouštějí z kořene repozitáře.
+Skripty se spouštějí z kořene repozitáře.
+
+- **Lidé, čísla a role** — seznam `LIDE` na začátku `build.py`.
+- **Texty spodního pruhu** — `TEXT_PRUH` a `TEXT_PRUH_ASISTENT` tamtéž.
+- **Adresa úložiště obrázků** — konstanta `WEB` (lze přebít proměnnou prostředí).
+
+### Velikost podpisu
+
+Řídí ji **jediné číslo** — `MERITKO` v `rozmery.py`, které sdílí `build.py` i `assety.py`,
+aby se rozměry HTML a rozlišení obrázků nemohly rozejít. `1.0` = 600 px podle původního
+návrhu z Canvy, **nasazeno je `1.15`** = 689 px, text 13 px, QR 166 px.
+
+Po změně měřítka je nutné spustit **obě** dávky — jinak by obrázky měly rozlišení
+neodpovídající HTML a byly by rozmazané:
+
+```bash
+MERITKO=1.25 python _zdroj/assety.py && MERITKO=1.25 python _zdroj/build.py
+```
+
+Nad ~700 px pozor: v užším čtecím podokně (rozdělené okno Outlooku) si klient podpis
+zmenší nebo přidá vodorovné posouvání. Řádek „Skrze systém MEDEVIO…" a text spodního
+pruhu se **nezalamují**, takže při zvětšování je hlídej — při 1.15 zabírají 482 z 481 px,
+resp. 597 z 675 px.
 
 ## Kontrola po nasazení
 
