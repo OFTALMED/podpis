@@ -42,17 +42,50 @@ zmenšují atributy `width`/`height`.
 
 ## QR kódy
 
-Každý podpis má **vlastní soubor** `obrazky/podpis-qr-<slug>.png`, i když je obrázek
-zatím shodný s jiným. Výměna QR proto znamená přepsat jeden obrázek — HTML se nemění
-a nikdo nemusí podpis znovu vkládat do Gmailu.
+Každý podpis má **vlastní soubor** `obrazky/podpis-qr-<slug>.png`. Předlohy jsou vektorové
+SVG v `_zdroj/qr/` — z nich se PNG renderuje, needituje se rastr.
 
-> **Nedodělek:** `podpis-qr-wildner-2.png` a `podpis-qr-asistent.png` nesou zatím
-> **převzatý QR z návrhu** (Wildnerův, resp. Mňukův). Tomáš je opravuje v Canvě.
-> Až budou hotové, stačí přepsat ty dva soubory.
+| Podpis | Osobní číslo | Předloha |
+|---|---|---|
+| `mnuk` | 736 220 797 | `_zdroj/qr/mnuk.svg` |
+| `sutakova` | 731 875 187 | `_zdroj/qr/sutakova.svg` |
+| `wildner` | 734 608 608 | `_zdroj/qr/wildner.svg` (vizitka optika) |
+| `wildner-2` | 737 916 707 | `_zdroj/qr/wildner-2.svg` (vizitka osobní) |
+| `asistent` | — | `_zdroj/qr/asistent.svg` |
 
-`obrazky/podpis-qr.png` je starý název Mňukova QR. Zůstává jen kvůli podpisu, který
-mohl být vložený do Gmailu dřív, než vznikly per-osobní názvy. Až budou všechny podpisy
-nasazené z aktuálních adres, může se smazat.
+Protože má každý podpis vlastní název souboru, **výměna QR znamená přepsat jeden obrázek** —
+HTML se nemění a nikdo nemusí podpis znovu vkládat do Gmailu.
+
+### Převod SVG → PNG
+
+Podpisy potřebují PNG; SVG e-mailoví klienti nevykreslí (Gmail ho odstraní, Outlook neumí).
+Renderuje se přes headless Chrome na 288 × 288 px (dvojnásobek zobrazených 144) s podkladem
+`#fefefe`:
+
+```bash
+printf '%s' '<!doctype html><meta charset="utf-8"><body style="margin:0;background:#fefefe">
+<img src="mnuk.svg" width="288" height="288"></body>' > mnuk.html
+chrome --headless=new --disable-gpu --force-device-scale-factor=1 --window-size=288,288        --screenshot=podpis-qr-mnuk.png mnuk.html
+```
+
+`obrazky/podpis-qr.png` je starý název Mňukova QR, držený kvůli podpisu vloženému do Gmailu
+před zavedením per-osobních názvů. Obsahuje totéž co `podpis-qr-mnuk.png`. Až budou všechny
+podpisy nasazené z aktuálních adres, může se smazat.
+
+### Známé omezení
+
+QR nesou celou vizitku (vCard) při chybové korekci H, což dělá ~76–86 modulů na stranu
+(Šutáková ~52). V podpisu se kód zobrazuje na 144 px, takže vychází jen **~1,8 px na modul** —
+na retina displeji se přečte, na běžném je to na hraně a z tisku spolehlivě ne.
+
+Zlepší to (v tomto pořadí podle účinku):
+
+1. **do QR dát krátkou URL místo celé vCard** — sníží počet modulů zhruba na třetinu,
+2. chybová korekce **M (15 %)** místo H — v e-mailu na bílé ploše a bez loga uprostřed
+   se vysoká korekce nevyplatí,
+3. **plné čtverečky místo teček** — kulaté tečky s mezerami ubírají čtečce hrany.
+
+Rozlišení exportu s tím nepomůže, limit je hustota modulů, ne počet pixelů.
 
 ## Úprava podpisů
 
