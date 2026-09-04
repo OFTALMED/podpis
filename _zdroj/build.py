@@ -197,8 +197,11 @@ dlazdice = '\n'.join(
     '  <div style="display:inline-block;margin:0 18px 18px 0;text-align:center;vertical-align:top;">'
     + img(WEB, 'podpis-qr-' + slug + '.png', 144, 144, 'QR ' + jmeno).replace('display:block', 'display:inline-block')
     + '<div style="font-family:' + FONT + ';font-size:12px;color:' + TEXT + ';margin-top:6px;">'
-    + jmeno + '</div></div>'
-    for slug, jmeno, _ in LIDE)
+    + jmeno + '</div>'
+    # cislo odlisi dva podpisy stejneho jmena
+    + '<div style="font-family:' + FONT + ';font-size:11px;color:#666;">'
+    + (osobni[1] if osobni else 'bez osobního čísla') + '</div></div>'
+    for slug, jmeno, osobni in LIDE)
 
 zapis('test/index.html', stranka(
     '<div style="font-family:' + FONT + ';color:' + TEXT + ';max-width:840px;">'
