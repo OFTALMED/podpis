@@ -191,6 +191,26 @@ polozky = '\n'.join(
     'style="color:' + MODRA + ';font-weight:bold;text-decoration:none;">' + jmeno + '</a></li>'
     for slug, jmeno, _ in LIDE)
 
+# testovaci stranka: vsechny QR presne v te velikosti, jakou maji v podpisu (144 px),
+# aby sly vyzkouset mobilem z monitoru na jeden zatah
+dlazdice = '\n'.join(
+    '  <div style="display:inline-block;margin:0 18px 18px 0;text-align:center;vertical-align:top;">'
+    + img(WEB, 'podpis-qr-' + slug + '.png', 144, 144, 'QR ' + jmeno).replace('display:block', 'display:inline-block')
+    + '<div style="font-family:' + FONT + ';font-size:12px;color:' + TEXT + ';margin-top:6px;">'
+    + jmeno + '</div></div>'
+    for slug, jmeno, _ in LIDE)
+
+zapis('test/index.html', stranka(
+    '<div style="font-family:' + FONT + ';color:' + TEXT + ';max-width:840px;">'
+    '<h1 style="font-size:21px;color:' + MODRA + ';margin:0 0 4px 0;">Test QR kódů</h1>'
+    '<p style="font-size:13px;line-height:20px;margin:0 0 6px 0;">Každý kód je tu <strong>přesně '
+    'tak velký jako v podpisu</strong> (144 px). Zkus je načíst mobilem z monitoru.</p>'
+    '<p style="font-size:13px;line-height:20px;margin:0 0 20px 0;color:#666;">Aby test platil, '
+    'musí mít prohlížeč zoom na 100 % (<strong>Ctrl+0</strong>). Windows si navíc obraz zvětšuje '
+    'vlastním škálováním displeje — na jiném monitoru vyjde kód fyzicky jinak velký.</p>'
+    + dlazdice + '</div>', 'Test QR kódů'))
+print('test/index.html (QR ve skutecne velikosti) hotov')
+
 zapis('index.html', stranka(
     '<div style="font-family:' + FONT + ';max-width:600px;color:' + TEXT + ';">'
     '<h1 style="font-size:21px;color:' + MODRA + ';margin:0 0 4px 0;">E-mailové podpisy OFTALMED</h1>'
