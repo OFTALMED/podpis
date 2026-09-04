@@ -59,18 +59,18 @@ def img(base, soubor, w, h, alt):
 
 def radek(base, ikona, alt, obsah):
     return ('\n          <tr>'
-            '\n            <td width="18" valign="middle" style="width:18px;padding:0 8px 5px 0;">'
-            + img(base, ikona, 18, 18, alt) + '</td>'
-            '\n            <td valign="middle" style="padding:0 0 5px 0;font-family:' + FONT +
-            ';font-size:11px;line-height:18px;color:' + TEXT + ';">' + obsah + '</td>'
+            '\n            <td width="' + str(IKONA) + '" valign="middle" style="width:' + str(IKONA) + 'px;padding:0 ' + str(IKONA_PAD) + 'px ' + str(RADEK_PAD) + 'px 0;">'
+            + img(base, ikona, IKONA, IKONA, alt) + '</td>'
+            '\n            <td valign="middle" style="padding:0 0 ' + str(RADEK_PAD) + 'px 0;font-family:' + FONT +
+            ';font-size:' + str(TEXT_F) + 'px;line-height:' + str(TEXT_LH) + 'px;color:' + TEXT + ';">' + obsah + '</td>'
             '\n          </tr>')
 
 
 def prazdny_radek():
     """Virtuální asistent nemá osobní číslo. Slot zůstává prázdný, aby zbylé řádky
     i dělicí linky seděly na stejných místech jako u ostatních podpisů."""
-    return ('\n          <tr><td colspan="2" height="23" '
-            'style="height:23px;font-size:0;line-height:0;">&nbsp;</td></tr>')
+    return ('\n          <tr><td colspan="2" height="' + str(IKONA + RADEK_PAD) + '" '
+            'style="height:' + str(IKONA + RADEK_PAD) + 'px;font-size:0;line-height:0;">&nbsp;</td></tr>')
 
 
 def tlacitko(barva, popisek, url):
