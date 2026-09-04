@@ -22,7 +22,7 @@ URL_MAPA = ("https://www.google.com/maps/place/OFTALMED+OPTIKA+s.r.o./@49.211027
             "data=!3m1!4b1!4m6!3m5!1s0x471295dd34cd7b53:0xc57afb6776774aa5!8m2!3d49.2110276"
             "!4d16.633001!16s%2Fg%2F11n2v0hw4p?authuser=0&amp;entry=ttu")
 
-TEXT_PRUH = ("Máte nějaké otázky? Zeptejte se nejdříve našeho virtuální AI asistenta, "
+TEXT_PRUH = ("Máte nějaké otázky? Zeptejte se nejdříve našeho virtuálního AI asistenta, "
              "ví toho docela hodně a učí se...")
 
 # slug, jméno, (popisek osobního čísla, číslo, poznámka v závorce) nebo None
@@ -31,8 +31,9 @@ TEXT_PRUH = ("Máte nějaké otázky? Zeptejte se nejdříve našeho virtuální
 # soubor i tam, kde je obrázek zatím shodný s jiným — výměna QR pak znamená přepsat
 # jeden obrázek, HTML se nemění a podpis se nemusí znovu vkládat do Gmailu.
 #
-# POZOR: `wildner-2` a `asistent` nesou zatím PŘEVZATÝ QR z návrhu (Wildnerův, resp.
-# Mňukův). Tomáš je opravuje v Canvě — až budou, stačí přepsat ty dva soubory.
+# Předlohy QR jsou vektorové SVG v _zdroj/qr/, PNG se z nich renderuje (postup v README).
+# Wildner má dva podpisy: `wildner` = vizitka optika (734 608 608),
+# `wildner-2` = vizitka osobní (737 916 707).
 LIDE = [
     ("mnuk",      "MUDr. Tomáš Mňuk",     ("lékař",        "+420 736 220 797", "(konzultace akutních potíží)")),
     ("sutakova",  "Bc. Nina Šutáková",    ("optometrista", "+420 731 875 187", "(konzultace, objednávání)")),
