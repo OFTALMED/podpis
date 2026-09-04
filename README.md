@@ -72,20 +72,22 @@ chrome --headless=new --disable-gpu --force-device-scale-factor=1 --window-size=
 před zavedením per-osobních názvů. Obsahuje totéž co `podpis-qr-mnuk.png`. Až budou všechny
 podpisy nasazené z aktuálních adres, může se smazat.
 
-### Známé omezení
+### Hustota kódů — ověřeno
 
-QR nesou celou vizitku (vCard) při chybové korekci H, což dělá ~76–86 modulů na stranu
-(Šutáková ~52). V podpisu se kód zobrazuje na 144 px, takže vychází jen **~1,8 px na modul** —
-na retina displeji se přečte, na běžném je to na hraně a z tisku spolehlivě ne.
+QR nesou celou vizitku (vCard, ~300 znaků) při chybové korekci H, což dělá ~76–86 modulů
+na stranu (Šutáková ~52). Na 144 px v podpisu to vychází jen ~1,8 px na modul, což vypadá
+málo — **v praxi se ale všech pět kódů mobilem z monitoru načte** (ověřeno 4. 9. 2026).
 
-Zlepší to (v tomto pořadí podle účinku):
+Měřeno dekodérem jsQR na renderech: tvar modulů (tečky × plné čtverečky × obdélníky)
+ani počet modulů **neměl na čitelnost měřitelný vliv** — všechny varianty snesly stejné
+rozmazání. Takže tečkovaný styl není potřeba měnit.
 
-1. **do QR dát krátkou URL místo celé vCard** — sníží počet modulů zhruba na třetinu,
-2. chybová korekce **M (15 %)** místo H — v e-mailu na bílé ploše a bez loga uprostřed
-   se vysoká korekce nevyplatí,
-3. **plné čtverečky místo teček** — kulaté tečky s mezerami ubírají čtečce hrany.
+Kdyby se čitelnost někdy zhoršila (menší zobrazení, tisk, horší monitor), pořadí zásahů
+podle očekávaného účinku je: krátká URL místo celé vCard → korekce M místo H → plné
+čtverečky místo teček. Zvyšovat rozlišení exportu nemá smysl, limit je hustota modulů.
 
-Rozlišení exportu s tím nepomůže, limit je hustota modulů, ne počet pixelů.
+Otestovat kódy jde kdykoli na **https://oftalmed.github.io/podpis/test/** — jsou tam
+v přesné velikosti, jakou mají v podpisu.
 
 ## Úprava podpisů
 
