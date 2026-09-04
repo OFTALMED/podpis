@@ -23,7 +23,11 @@ URL_MAPA = ("https://www.google.com/maps/place/OFTALMED+OPTIKA+s.r.o./@49.211027
             "!4d16.633001!16s%2Fg%2F11n2v0hw4p?authuser=0&amp;entry=ttu")
 
 TEXT_PRUH = ("Máte nějaké otázky? Zeptejte se nejdříve našeho virtuálního AI asistenta, "
-             "ví toho docela hodně a učí se...")
+             "ví toho docela hodně a pořád se učí...")
+
+# Očko mluví ve vlastním podpisu v první osobě
+TEXT_PRUH_ASISTENT = ("Máte nějaké otázky? Zeptejte se nejdříve mě, virtuálního AI asistenta, "
+                      "vím toho docela hodně a pořád se učím...")
 
 # slug, jméno, (popisek osobního čísla, číslo, poznámka v závorce) nebo None
 #
@@ -39,7 +43,7 @@ LIDE = [
     ("sutakova",  "Bc. Nina Šutáková",    ("optometrista", "+420 731 875 187", "(konzultace, objednávání)")),
     ("wildner",   "Viktor Wildner, DiS.", ("optik",        "+420 734 608 608", "(vyřizování zakázek, objednávání)")),
     ("wildner-2", "Viktor Wildner, DiS.", ("optik",        "+420 737 916 707", "")),
-    ("asistent",  "Virtuální asistent",   None),
+    ("asistent",  "Očko – virtuální asistent", None),
 ]
 
 ODKAZ_V_TEXTU = "color:" + TEXT + ";text-decoration:none;"
@@ -127,7 +131,7 @@ SABLONA = """<table role="presentation" width="600" cellpadding="0" cellspacing=
 </table>"""
 
 
-def sestav(base, jmeno, osobni, qr):
+def sestav(base, jmeno, osobni, qr, pruh=TEXT_PRUH):
     A = ODKAZ_V_TEXTU
     if osobni:
         popis, cislo, pozn = osobni
@@ -153,7 +157,7 @@ def sestav(base, jmeno, osobni, qr):
 
     return SABLONA.format(
         PODKLAD=PODKLAD, FONT=FONT, TEXT=TEXT, MODRA=MODRA, RADIUS=RADIUS,
-        PRUH_NAHRADA=PRUH_NAHRADA, URL_CHATBOT=URL_CHATBOT, TEXT_PRUH=TEXT_PRUH,
+        PRUH_NAHRADA=PRUH_NAHRADA, URL_CHATBOT=URL_CHATBOT, TEXT_PRUH=pruh,
         JMENO=jmeno, RADKY=radky,
         LOGO=img(base, 'podpis-logo.png', 144, 81, 'OFTALMED'),
         QR=img(base, qr, 144, 144, 'QR kontakt ' + jmeno),
@@ -184,7 +188,9 @@ for slug, jmeno, osobni in LIDE:
     # Obrázky se tahají z WEB, takže soubor vypadá stejně otevřený lokálně i z Pages —
     # samostatná náhledová verze s relativními cestami už neexistuje, jen mátla.
     qr = 'podpis-qr-' + slug + '.png'
-    zapis(slug + '/index.html', stranka(sestav(WEB, jmeno, osobni, qr), 'Podpis - ' + jmeno))
+    pruh = TEXT_PRUH_ASISTENT if slug == 'asistent' else TEXT_PRUH
+    zapis(slug + '/index.html',
+          stranka(sestav(WEB, jmeno, osobni, qr, pruh), 'Podpis - ' + jmeno))
     print('{:11s} {}'.format(slug, jmeno))
 
 polozky = '\n'.join(
