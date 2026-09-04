@@ -138,8 +138,9 @@ def sestav(base, jmeno, osobni, qr, pruh=TEXT_PRUH):
     A = ODKAZ_V_TEXTU
     if osobni:
         popis, cislo, pozn = osobni
-        obsah = ('<a href="tel:' + cislo.replace(' ', '') + '" style="' + A + '">'
-                 '<strong>' + popis + ': ' + cislo + '</strong></a>')
+        # Bez odkazu tel: - na počítači vyvolává dialog "Otevřít aplikaci?".
+        # Mobilní klienti si čísla stejně rozpoznají a udělají ťukatelná sami.
+        obsah = '<strong>' + popis + ': ' + cislo + '</strong>'
         if pozn:
             obsah += ' ' + pozn
         prvni = radek(base, 'podpis-ikona-telefon.png', 'Telefon', obsah)
@@ -148,8 +149,8 @@ def sestav(base, jmeno, osobni, qr, pruh=TEXT_PRUH):
 
     radky = (prvni
         + radek(base, 'podpis-ikona-telefon.png', 'Telefon',
-                '<a href="tel:+420530000195" style="' + A + '"><strong>ústředna: +420 530 000 195'
-                '</strong></a> (poskytování informací, objednání do optiky)')
+                '<strong>ústředna: +420 530 000 195</strong>'
+                ' (poskytování informací, objednání do optiky)')
         + radek(base, 'podpis-ikona-web.png', 'Web',
                 '<a href="' + URL_WEB_OPTIKA + '" style="' + A + '"><strong>www.OFTALMED-OPTIKA.cz'
                 '</strong></a> &nbsp; &amp; &nbsp; <a href="' + URL_WEB + '" style="' + A + '">'

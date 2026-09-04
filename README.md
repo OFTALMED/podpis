@@ -127,6 +127,9 @@ přílohy) a po odpovědi z Outlooku musí obrázky pořád držet.
 
 ## Pravidla, která se tu nesmí porušit
 
+0. **Telefonní čísla nejsou odkazy.** `tel:` na počítači vyvolá dialog „Otevřít aplikaci?",
+   a přes počítač skoro nikdo nevolá. Mobilní klienti si čísla rozpoznají a udělají
+   ťukatelná sami, takže se tím nic neztrácí.
 1. Obrázky jen přes `https://`, nikdy `cid:` ani `data:`.
 2. Adresa vždy končí `.png` — nikdy varianta `.png.webp` (Outlook WebP neumí).
 3. Text zůstává textem, nikdy se nevykresluje do obrázku.
