@@ -118,7 +118,12 @@ if __name__ == '__main__':
         os.path.join(CIL, 'podpis-linka-h.png'), optimize=True)
     gradient(LINKA, DIV * 2, LINKA_V_H * 2, svisly=True).save(
         os.path.join(CIL, 'podpis-linka-v.png'), optimize=True)
-    zaoblit(gradient(PRUH, PRUH_W * 2, PRUH_H * 2), RADIUS * 2).save(
+    # Pruh se dela v PRESNE zobrazovane velikosti (1x, ne 2x) a HRANATY.
+    # Duvod: Gmail podpisu obcas zahodi background-size nebo bunce pridá pár pixelu
+    # vysky. Pri 2x obrazku se pak vykresli jen jeho cast a roh se "ukousne";
+    # zapecene zaobleni by navic nesedelo s CSS oriznutim. Takhle obrazek sedi vzdy
+    # a zaobleni resi border-radius. Gradient je hladky, takze 1x je nerozeznatelne.
+    gradient(PRUH, PRUH_W, PRUH_H).save(
         os.path.join(CIL, 'podpis-pruh.png'), optimize=True)
 
     celkem = sum(os.path.getsize(os.path.join(CIL, f)) for f in os.listdir(CIL))

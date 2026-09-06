@@ -127,6 +127,13 @@ přílohy) a po odpovědi z Outlooku musí obrázky pořád držet.
 
 ## Pravidla, která se tu nesmí porušit
 
+0. **Spodní pruh: obrázek v přesné velikosti, hranatý, zaobluje až CSS.** Gmail podpisu
+   občas zahodí `background-size` nebo buňce přidá pár pixelů výšky. Kdyby byl obrázek
+   ve dvojnásobném rozlišení, vykreslila by se jen jeho část a roh by se „ukousl";
+   kdyby mělo zaoblení zapečené v sobě, nesedělo by s CSS oříznutím. Proto se pruh
+   generuje 1:1, hranatý, a v CSS má `background-repeat:repeat-y` +
+   `background-size:100% 100%` — přežije obojí. (Cena: v Outlooku bude pruh hranatý,
+   stejně jako tlačítka.)
 0. **Telefonní čísla nejsou odkazy.** `tel:` na počítači vyvolá dialog „Otevřít aplikaci?",
    a přes počítač skoro nikdo nevolá. Mobilní klienti si čísla rozpoznají a udělají
    ťukatelná sami, takže se tím nic neztrácí.

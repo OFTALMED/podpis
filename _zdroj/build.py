@@ -124,7 +124,7 @@ SABLONA = """<table role="presentation" width="{CELKEM}" cellpadding="0" cellspa
     <td colspan="3" style="padding:{PRUH_TOP}px 0 0 {PAD_L}px;">
       <table role="presentation" width="{PRUH_W}" cellpadding="0" cellspacing="0" border="0" style="width:{PRUH_W}px;border-collapse:collapse;">
         <tr>
-          <td height="{PRUH_H}" align="center" background="{PRUH_URL}" bgcolor="{PRUH_NAHRADA}" style="height:{PRUH_H}px;border-radius:{RADIUS}px;background-color:{PRUH_NAHRADA};background-image:url({PRUH_CSS});background-repeat:no-repeat;background-size:{PRUH_W}px {PRUH_H}px;padding:0 {PRUH_PAD}px;font-family:{FONT};font-size:{PRUH_F}px;font-weight:bold;line-height:{PRUH_H}px;color:#ffffff;white-space:nowrap;">
+          <td height="{PRUH_H}" align="center" background="{PRUH_URL}" bgcolor="{PRUH_NAHRADA}" style="height:{PRUH_H}px;border-radius:{RADIUS}px;background-color:{PRUH_NAHRADA};background-image:url({PRUH_CSS});background-repeat:repeat-y;background-size:100% 100%;padding:0 {PRUH_PAD}px;font-family:{FONT};font-size:{PRUH_F}px;font-weight:bold;line-height:{PRUH_H}px;color:#ffffff;white-space:nowrap;">
             <a href="{URL_CHATBOT}" style="color:#ffffff;text-decoration:none;">{TEXT_PRUH}</a>
           </td>
         </tr>
